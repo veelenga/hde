@@ -16,7 +16,7 @@ function initializeSampleData() {
   ];
 
   let text = sampleUrls.join('\n\n');
-  document.getElementById('input-textarea').append(text);
+  document.getElementById('input-textarea').value = text;
 }
 
 window.addEventListener('load', () => initializeSampleData())

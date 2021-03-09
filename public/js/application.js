@@ -1,8 +1,9 @@
 function startProcessingClicked() {
-  let area = document.getElementById('input-textarea');
-  let urls = area.value;
+  let inputArea = document.getElementById('input-textarea');
+  let outputArea = document.getElementById('output-textarea');
 
-  initServerCommunication(urls);
+  outputArea.value = '';
+  initServerCommunication(inputArea.value);
 }
 
 function initServerCommunication(data) {
@@ -25,6 +26,8 @@ function initServerCommunication(data) {
 }
 
 function processServerEvent(event) {
+  console.log("Server event: ", event.data);
+
   // TODO: handle case when | is part of the URL
   let [cmd, text] = (event.data || "").split(" | ");
 
@@ -63,8 +66,5 @@ function handleServerFinish(text) {
 }
 
 function handleItemProcessed(text) {
-  let newItem = document.createElement('p');
-  newItem.innerText = text;
-
-  document.getElementById('output-container').appendChild(newItem);
+  document.getElementById('output-textarea').value += `${text}\n\n`;
 }

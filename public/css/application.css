@@ -13,7 +13,7 @@ html, body {
   height: 90%;
 }
 
-#input-textarea {
+#input-textarea, #output-textarea {
   width: 100%;
   height: 60%;
 }
@@ -23,12 +23,4 @@ html, body {
   margin-left: -10px;
   margin-top: 10px;
   padding: 10px;
-}
-
-#output-container {
-  border: solid 1px;
-  border-color: gray;
-  overflow-y: scroll;
-  padding: 0px 3px 0px 3px;
-  height: 60%;
 }

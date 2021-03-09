@@ -1,22 +1,18 @@
 <div class="main-container">
   <div class="split-panel">
-    <textarea
-      autofocus
-      text=""
-      id="input-textarea"
-      name="text"
-      rows="30"
-      placeholder="Enter URLs to extract dates from..."></textarea>
+    <textarea id="input-textarea" placeholder="Enter URLs to extract dates from..."></textarea>
 
-    <br>
+    <button
+      id="start-button"
+      onclick="startProcessingClicked()"
+      type="button">
+      Start Processing
+    </button>
 
-    <button id="start-button" onclick="startProcessingClicked()" type="button">Start Processing</button>
   </div>
 
   <div class="split-panel">
-    <div id="output-container">
-      <p> Example2.com | Aug 3, 2011 | 334ms </p>
-    </div>
+    <textarea id="output-textarea" disabled="true"></textarea>
   </div>
 
 </div>
