@@ -29,7 +29,7 @@ function processServerEvent(socket, event) {
   console.log("Server event: ", event.data);
 
   // TODO: handle case when | is part of the URL
-  let [cmd, text] = (event.data || "").split(" | ");
+  let [cmd, text] = (event.data || "").split(" > ");
 
   switch(cmd.trim().toLowerCase()) {
     case 'error':
@@ -50,7 +50,7 @@ function processServerEvent(socket, event) {
 }
 
 function handleServerError(socket, text) {
-  console.err(text);
+  console.error(text);
   socket.close();
 }
 

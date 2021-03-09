@@ -8,7 +8,7 @@ end
 ws "/ws" do |socket|
   socket.on_message do |message|
     App.new.process(message) do |cmd, text|
-      socket.send("#{cmd} | #{text}")
+      socket.send("#{cmd} > #{text}")
     end
   end
 
