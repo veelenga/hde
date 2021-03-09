@@ -1,0 +1,17 @@
+name: htmldate_extractor
+version: 0.1.0
+
+authors:
+  - Vitalii Elenhaupt <velenhaupt@gmail.com>
+
+targets:
+  htmldate_extractor:
+    main: src/web.cr
+
+dependencies:
+  kemal:
+    github: kemalcr/kemal
+
+crystal: 0.36.1
+
+license: MIT
