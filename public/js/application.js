@@ -62,10 +62,8 @@ function handleServerStart() {
 function handleServerFinish(socket, text) {
   socket.close();
 
-  let startButton = document.getElementById('start-button');
-  startButton.removeAttribute('disabled');
-
-  // TODO: set total execution time
+  document.getElementById('start-button').removeAttribute('disabled');
+  document.getElementById('total-execution-time').innerText = text;
 }
 
 function handleItemProcessed(text) {

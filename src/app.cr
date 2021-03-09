@@ -4,12 +4,17 @@ class App
   def process(message)
     yield "start", nil
 
-    parse_urls(message).each do |url|
-      item = process(url)
-      yield "process", "#{item[0]} | #{item[1]} | #{item[2]}ms"
+    urls = parse_urls(message)
+
+    elapsed_time = Time.measure do
+      urls.each do |url|
+        item = process(url)
+        yield "process", "#{item[0]} | #{item[1]} | #{item[2]}ms"
+      end
     end
 
-    yield "finish", ""
+    total_execution_time = to_ms(elapsed_time)
+    yield "finish", "#{total_execution_time}ms"
   rescue e
     puts e.inspect_with_backtrace
     yield "error", e.message
@@ -26,8 +31,11 @@ class App
     elapsed_time = Time.measure do
       date = HtmlDate.extract_from_url(url) || "NA"
     end
-    ms = elapsed_time.total_milliseconds.round.to_i
 
-    {url, date, ms}
+    {url, date, to_ms(elapsed_time)}
+  end
+
+  private def to_ms(time)
+    time.total_milliseconds.round.to_i
   end
 end
