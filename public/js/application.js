@@ -10,7 +10,7 @@ function initServerCommunication(data) {
   let socket = new WebSocket("ws://localhost:3000/ws");
 
   socket.onopen = () => socket.send(data);
-  socket.onmessage = (event) => processServerEvent(event);
+  socket.onmessage = (event) => processServerEvent(socket, event);
 
   socket.onclose = (event) => {
     if (event.wasClean) {
@@ -25,7 +25,7 @@ function initServerCommunication(data) {
   };
 }
 
-function processServerEvent(event) {
+function processServerEvent(socket, event) {
   console.log("Server event: ", event.data);
 
   // TODO: handle case when | is part of the URL
@@ -33,13 +33,13 @@ function processServerEvent(event) {
 
   switch(cmd.trim().toLowerCase()) {
     case 'error':
-      handleServerError(text);
+      handleServerError(socket, text);
       break;
     case 'start':
       handleServerStart();
       break;
     case 'finish':
-      handleServerFinish(text);
+      handleServerFinish(socket, text);
       break;
     case 'process':
       handleItemProcessed(text);
@@ -49,18 +49,21 @@ function processServerEvent(event) {
   }
 }
 
-function handleServerError(text) {
+function handleServerError(socket, text) {
   console.err(text);
+  socket.close();
 }
 
 function handleServerStart() {
-  let startButton = document.getElementById('start-button')[0];
+  let startButton = document.getElementById('start-button');
   startButton.setAttribute('disabled', true);
 }
 
-function handleServerFinish(text) {
-  let startButton = document.getElementsByTagName('button')[0];
-  startButton.setAttribute('disabled', false);
+function handleServerFinish(socket, text) {
+  socket.close();
+
+  let startButton = document.getElementById('start-button');
+  startButton.removeAttribute('disabled');
 
   // TODO: set total execution time
 }

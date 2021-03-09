@@ -1,10 +1,14 @@
 class App
   def process(message)
-    urls = extract_urls(message)
+    yield "start", nil
 
-    urls.each do |url|
+    extract_urls(message).each do |url|
       yield "process", url
     end
+
+    yield "finish", ""
+  rescue e
+    yield "error", e.message
   end
 
   private def extract_urls(message)
