@@ -3,7 +3,15 @@ require "xml"
 module HtmlDate
   extend self
 
-  META_CONTENT_ATTRIBUTES = %w(
+  LD_JSON_PATTERN_PUBLISHED = /datePublished": ?"([0-9]{4}-[0-9]{2}-[0-9]{2})/
+  LD_JSON_PATTERN_MODIFIED  = /dateModified": ?"([0-9]{4}-[0-9]{2}-[0-9]{2})/
+  META_CONTENT_ATTRIBUTES   = %w(
+    article:modified_time
+    modified_time
+    og:article:modified_time
+    og:updated_time
+    release_date
+    updated_time
     pubdate
     publishdate
     timestamp
@@ -27,14 +35,15 @@ module HtmlDate
 
   def extract_from_html(html)
     node = XML.parse_html(html)
-    date = search_header(node)
+
+    date = search_meta(node.xpath_node("//head"))
+    date ||= search_ldjson(node)
+    date ||= search_meta(node.xpath_node("//body"))
     formatDate(date) if date
   end
 
-  private def search_header(node)
-    return unless header = node.xpath_node("//header")
-
-    meta_content_node = header.xpath_nodes("//meta").find do |meta_node|
+  private def search_meta(node)
+    meta_content_node = node.not_nil!.xpath_nodes("//meta").find do |meta_node|
       content_attribute_matches = meta_node.attributes.any? do |attr|
         attr.content.in?(META_CONTENT_ATTRIBUTES)
       end
@@ -43,6 +52,16 @@ module HtmlDate
     end
 
     meta_content_node["content"] if meta_content_node
+  end
+
+  private def search_ldjson(node)
+    json_node = node.xpath_node(%q(.//script[@type="application/ld+json"]|//script[@type="application/settings+json"]))
+    return if json_node.nil? || !json_node.content.includes?("date")
+
+    result = LD_JSON_PATTERN_MODIFIED.match(json_node.content) ||
+             LD_JSON_PATTERN_PUBLISHED.match(json_node.content)
+    pp result
+    result.try &.[1]
   end
 
   private def formatDate(date)
