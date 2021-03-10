@@ -20,4 +20,5 @@ ws "/ws" do |socket|
   end
 end
 
+Log.setup(:debug)
 Kemal.run

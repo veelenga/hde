@@ -25,29 +25,6 @@ module HtmlDate
     article_date_original
   )
 
-  class Client
-    def fetch(url, max_retries = 2)
-      raise ArgumentError.new("retries are too deep") if max_retries == 0
-
-      response = HTTP::Client.get(url)
-
-      if response.status_code == 301
-        new_url = response.headers["location"]
-        return fetch(new_url, max_retries - 1)
-      end
-
-      response
-    end
-  end
-
-  def extract_from_url(url)
-    response = Client.new.fetch(url)
-
-    return if !response.success? || response.body.empty?
-
-    extract_from_html(response.body)
-  end
-
   def extract_from_html(html)
     node = XML.parse_html(html)
     date = search_header(node)

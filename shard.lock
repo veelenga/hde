@@ -8,19 +8,19 @@ shards:
     git: https://github.com/kemalcr/kemal.git
     version: 0.27.0
 
-  kemal-csrf:
-    git: https://github.com/kemalcr/kemal-csrf.git
-    version: 0.7.0
-
-  kemal-session:
-    git: https://github.com/kemalcr/kemal-session.git
-    version: 0.12.1
-
   kilt:
     git: https://github.com/jeromegn/kilt.git
     version: 0.4.0
 
+  pool:
+    git: https://github.com/ysbaddaden/pool.git
+    version: 0.2.3
+
   radix:
     git: https://github.com/luislavena/radix.git
     version: 0.3.9
+
+  redis:
+    git: https://github.com/stefanwille/crystal-redis.git
+    version: 2.6.0
 
