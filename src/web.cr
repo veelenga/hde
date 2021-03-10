@@ -1,5 +1,6 @@
 require "kemal"
 require "./app"
+require "log"
 
 get "/" do |env|
   render "src/views/index.ecr", "src/views/layouts/application.ecr"

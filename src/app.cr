@@ -1,7 +1,7 @@
+require "digest/md5"
+require "./cache"
 require "./html_date"
 require "./http_client_with_retries"
-require "redis"
-require "log"
 
 class App
   LAST_MODIFIED_TIME_FORMAT = "%a, %-d %b %Y %H:%M:%S %^Z"
@@ -10,7 +10,7 @@ class App
   alias OutputCallType = String, String? -> Nil
 
   def initialize
-    @redis = Redis::PooledClient.new
+    @cache = Cache.new
   end
 
   def process(message, &block : OutputCallType)
@@ -35,9 +35,8 @@ class App
 
       spawn do
         item = process_url(url)
-        date, time = item[1], item[2]
+        date, time = item[0], item[1]
         block.call "process", "#{url} | #{date} | #{time}ms"
-        cache_date(url, date)
       rescue e
         Log.error { e.inspect_with_backtrace }
         block.call "process", "#{url} | NA | NA"
@@ -54,34 +53,37 @@ class App
     Log.debug { "Start processing URL: #{url}" }
 
     date = nil
-    elapsed_time = Time.measure { date = extract_date(url) }
-    ms = to_ms(elapsed_time)
+    ms = to_ms(Time.measure { date = extract_date(url) })
 
     Log.debug { "URL processed: #{url} | #{date} | #{ms}" }
 
-    {url, date || "NA", ms}
+    {date || "NA", ms}
   end
 
   private def extract_date(url)
     response = HTTPClientWithRetries.new.fetch(url)
     return if !response.success? || response.body.empty?
-    cached_date(url, response) || HtmlDate.extract_from_html(response.body)
+
+    digest = Digest::MD5.base64digest(response.body)
+    date = lookup_cache(url, response, digest) || HtmlDate.extract_from_html(response.body)
+    @cache.save(url, digest, date) if date
+    date
   end
 
-  private def cached_date(url, response)
-    return if ENV["CACHE_DISABLED"]?
-    return unless last_modified_date = response.headers["last-modified"]?
-    return unless modified_at = (Time.parse!(last_modified_date, LAST_MODIFIED_TIME_FORMAT) rescue nil)
+  private def lookup_cache(url, response, content_digest)
+    return unless date = @cache.get_date(url)
 
-    if modified_at.to_utc < Time.utc
-      date = @redis.get(url)
-      Log.debug { "Date found in cache: #{date} #{url}" } if date
+    if not_modified?(response) || @cache.get_digest(url) == content_digest
+      Log.debug { "Date found in cache: #{url} | #{date}" }
       return date
     end
   end
 
-  private def cache_date(url, date)
-    @redis.set(url, date)
+  private def not_modified?(response)
+    return unless last_modified_date = response.headers["last-modified"]?
+    return unless modified_at = (Time.parse!(last_modified_date, LAST_MODIFIED_TIME_FORMAT) rescue nil)
+
+    modified_at.to_utc < Time.utc
   end
 
   private def parse_urls(message)
