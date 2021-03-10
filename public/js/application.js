@@ -3,6 +3,7 @@ function startProcessingClicked() {
   let outputArea = document.getElementById('output-textarea');
 
   outputArea.value = '';
+  document.getElementById('total-execution-time').innerText = '-';
   initServerCommunication(inputArea.value);
 }
 
@@ -14,26 +15,25 @@ function initServerCommunication(data) {
 
   socket.onclose = (event) => {
     if (event.wasClean) {
-      console.log('closed clean')
+      console.log('Server connection successfully dropped')
     } else {
-      console.log('closed killed')
+      console.log('Server connection killed')
     }
   };
 
   socket.onerror = function(error) {
-    console.log(error)
+    console.error(error)
   };
 }
 
 function processServerEvent(socket, event) {
   console.log("Server event: ", event.data);
 
-  // TODO: handle case when | is part of the URL
   let [cmd, text] = (event.data || "").split(" > ");
 
   switch(cmd.trim().toLowerCase()) {
     case 'error':
-      handleServerError(socket, text);
+      handleServerError(text);
       break;
     case 'start':
       handleServerStart();
@@ -49,9 +49,8 @@ function processServerEvent(socket, event) {
   }
 }
 
-function handleServerError(socket, text) {
+function handleServerError(text) {
   console.error(text);
-  socket.close();
 }
 
 function handleServerStart() {

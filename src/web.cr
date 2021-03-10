@@ -9,7 +9,10 @@ ws "/ws" do |socket|
   socket.on_message do |message|
     App.new.process(message) do |cmd, text|
       socket.send("#{cmd} > #{text}")
+      nil
     end
+
+    socket.close
   end
 
   socket.on_close do

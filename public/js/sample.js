@@ -6,7 +6,7 @@ function initializeSampleData() {
     "https://www.sciencedirect.com/science/article/pii/S1319157819301259/",
     "https://github.com/mbadry1/DeepLearning.ai-Summary/",
     "https://www.cnn.com/2020/03/12/opinions/oval-office-coronavirus-speech-trumps-worst-bergen/index.html",
-    "https://www.cnn.com/2020/03/12/opinions/oval-office-coronavirus-speech-trumps-worst-bergen/index.html",
+    "https://www.nytimes.com/2020/03/11/us/politics/trump-coronavirus-speech.html",
     "https://www.caranddriver.com/reviews/a21786823/2019-audi-q8-first-drive-review/",
     "https://www.topgear.com/car-reviews/audi/q8/",
     "https://www.youtube.com/watch?v=mii6NydPiqI/",
