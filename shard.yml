@@ -6,7 +6,7 @@ authors:
 
 targets:
   hde:
-    main: src/web.cr
+    main: src/hde.cr
 
 dependencies:
   kemal:
