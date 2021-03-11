@@ -7,11 +7,11 @@ def it_extracts_file(date : String, file)
 end
 
 def it_extracts(date : String, html : String)
-  it { HtmlDate.new.extract_from_html(html).should eq(date) }
+  it { HtmlDate.new(html).extract.should eq(date) }
 end
 
 def it_doesnt_extract(html : String)
-  it { HtmlDate.new.extract_from_html(html).should be_nil }
+  it { HtmlDate.new(html).extract.should be_nil }
 end
 
 describe HtmlDate do
@@ -65,8 +65,11 @@ describe HtmlDate do
     describe "copyright" do
       # https://www.metatags.org/all-meta-tags-overview/meta-name-copyright/
       it_extracts "Jan 1, 2017", %q(<html><head><meta itemprop="copyrightyear" content="2017"/></head><body></body></html>)
-      it_extracts "Jan 1, 2017", %q(<html><body>&copy; 2017</body></html>)
-      it_extracts "Jan 1, 2017", %q(<html><body>© 2017</body></html>)
+      it_extracts "Jan 1, 2017", %q(<html><body><span>&copy; 2017</span></body></html>)
+      it_extracts "Jan 1, 2017", %q(<html><body><p>© 2017</p></body></html>)
+
+      it_doesnt_extract %q(<html><body><p>© 4017</p></body></html>)
+      it_doesnt_extract %q(<html><body><p>© 0017</p></body></html>)
     end
 
     it_doesnt_extract %q(<html><head><meta/></head><body></body></html>)

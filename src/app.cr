@@ -65,7 +65,7 @@ class App
     return if !response.success? || response.body.empty?
 
     digest = Digest::MD5.base64digest(response.body)
-    date = lookup_cache(url, response, digest) || HtmlDate.new.extract_from_html(response.body)
+    date = lookup_cache(url, response, digest) || HtmlDate.new(response.body).extract
     @cache.save(url, digest, date) if date
     date
   end

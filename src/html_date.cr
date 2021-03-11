@@ -4,6 +4,8 @@ require "./sanitize/blacklist"
 class HtmlDate
   LD_JSON_PATTERN_PUBLISHED = /datePublished": ?"([0-9]{4}-[0-9]{2}-[0-9]{2})/
   LD_JSON_PATTERN_MODIFIED  = /dateModified": ?"([0-9]{4}-[0-9]{2}-[0-9]{2})/
+  TIMESTAMP_SEARCH_PATTERN  = /([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\.[0-9]{2}\.[0-9]{4}).[0-9]{2}:[0-9]{2}:[0-9]{2}/
+  COPYRIGHT_SEARCH_PATTERN  = /(?:©|\&copy;|Copyright|\(c\))\D*([12][0-9]{3})\D/
   META_CONTENT_ATTRIBUTES   = %w(
     article:modified_time
     last-modified
@@ -50,8 +52,7 @@ class HtmlDate
     "%d.%m.%y",   # 03.01.2021
     "%-d.%-m.%y", # 3.1.2021
   ]
-  TIMESTAMP_SEARCH_PATTERN       = /([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\.[0-9]{2}\.[0-9]{4}).[0-9]{2}:[0-9]{2}:[0-9]{2}/
-  TIMESTAMP_SEARCH_REJECTED_TAGS = %w(
+  HTML_TAGS_TO_SKIP = %w(
     audio
     abbr
     canvas
@@ -73,21 +74,30 @@ class HtmlDate
     video
   )
 
-  def initialize
+  @stripped_html : String?
+
+  def initialize(@html : String)
     @min_date = Time.unix(0)
     @max_date = Time.utc
   end
 
-  def extract_from_html(html)
-    node = XML.parse_html(html)
+  def extract
+    node = XML.parse_html(@html)
 
     date = search_meta_nodes(node)
     date ||= search_ldjson(node)
     date ||= search_abbr_nodes(node)
     date ||= search_time_nodes(node)
-    date ||= search_timestamps(html)
+    date ||= search_timestamps(html_without_blacklisted_tags)
+    date ||= search_copyright(node, html_without_blacklisted_tags)
 
     date.try &.to_s("%b %-d, %Y")
+  end
+
+  def html_without_blacklisted_tags
+    @stripped_html ||= Sanitize::Blacklist
+      .new(rejectable_tags: HTML_TAGS_TO_SKIP)
+      .process(@html)
   end
 
   private def search_meta_nodes(node) : Time?
@@ -162,13 +172,21 @@ class HtmlDate
     end.sort!.last?
   end
 
-  private def search_timestamps(htmlstring)
-    html = Sanitize::Blacklist
-      .new(rejectable_tags: TIMESTAMP_SEARCH_REJECTED_TAGS)
-      .process(htmlstring)
-
+  private def search_timestamps(html)
     result = TIMESTAMP_SEARCH_PATTERN.match html
     try_parse_date(result.try &.[1])
+  end
+
+  private def search_copyright(node, html)
+    copyright_node = node.xpath_node("//meta[@itemprop='copyrightyear']")
+
+    year = copyright_node.try &.attributes.try &.find { |attr| attr.name == "content" }.try &.content
+    date = try_parse_year(year)
+
+    return date if date
+
+    result = COPYRIGHT_SEARCH_PATTERN.match html
+    try_parse_year(result.try &.[1])
   end
 
   private def try_parse_date(candidate : String?, patterns = PARSE_DATE_PATTERNS) : Time?
@@ -185,5 +203,13 @@ class HtmlDate
 
     date = Time.unix(date) rescue nil
     return date if date && date >= @min_date && date <= @max_date
+  end
+
+  private def try_parse_year(y : String?) : Time?
+    year = y.try &.to_i?
+
+    return if year.nil? || year > @max_date.year || year < @min_date.year
+
+    Time.utc(year: year, month: 1, day: 1)
   end
 end
