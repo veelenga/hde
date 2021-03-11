@@ -40,7 +40,17 @@ When user initiates a procedure to process the input URLs, the following is happ
 
 ### Date extraction
 
-TODO:
+Searching for a date in HTML is performed in the following steps:
+
+1. Inspect the meta tags. Search is based on a whitelisted attributes which could indicate
+the publication or modification date of the page.
+2. Inspect the [JSON-LD](https://ru.wikipedia.org/wiki/JSON-LD) structure, which could contain
+the publication or modification page of the page.
+3. Inspect abbr attributes
+4. Inspect the time fields
+5. Try copyright date
+
+You can check the [specs](spec/html_date_spec.cr) for examples.
 
 ### Caching
 
