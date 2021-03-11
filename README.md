@@ -82,15 +82,25 @@ If none of the above steps are true, the app starts extracting the date.
 
 Cache can be disabled by using `CACHE_DISABLED=1` environment variable.
 
-### HTTP Client
+### Limitations and possible improvements
 
-A regular HTTP client is used to hit the URLs. It uses two small extensions:
+1. HTTP client can be improved. It follows the redirects with timeout and use cookies, however,
+on some inputs it is constantly redirected. Maybe setting proper headers could help to emulated a browser better.
 
-1. Following redirects
-2. Setting returned cookies
+2. Client sends all available URLs in the textarea through the Web Socket in a single go.
+This can be an issue on huge inputs. Splitting the input into chunks can help.
 
-However, this still doesn't help to perform a crawling in all the cases.
-May need some improvements.
+3. Taking a base64 digest from the hole HTML page is tricky.
+The result will always be different if content on the page slightly changes on every request.
+Preprocessing the HTML or extracting only relevant content from the HTML code and taking the
+base64 from it (instead of a full HTML page) could improve the caching.
+
+4. There is a number of extra steps which could be added to HTML Date extraction algorithm:
+
+- parsing [Open Graph Protocol](https://ogp.me/) tags
+- extract dates from URLs
+- collecting all the dates on the page and determine the best one
+
 
 ## Contributors
 
