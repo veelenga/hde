@@ -58,13 +58,15 @@ class HtmlDate
   def extract_from_html(html)
     node = XML.parse_html(html)
 
-    date = search_meta(node)
+    date = search_meta_nodes(node)
     date ||= search_ldjson(node)
-    date ||= search_abbr(node)
-    format_date(date) if date
+    date ||= search_abbr_nodes(node)
+    date ||= search_time_nodes(node)
+
+    date.try &.to_s("%b %-d, %Y")
   end
 
-  private def search_meta(node)
+  private def search_meta_nodes(node) : Time?
     meta_content_node = node.xpath_nodes("//meta").find do |meta_node|
       content_attribute_matches = meta_node.attributes.any? do |attr|
         attr.content.in?(META_CONTENT_ATTRIBUTES)
@@ -76,7 +78,7 @@ class HtmlDate
     try_parse_date(meta_content_node.try &.["content"])
   end
 
-  private def search_ldjson(node)
+  private def search_ldjson(node) : Time?
     json_node = node.xpath_node(%q(.//script[@type="application/ld+json"]|//script[@type="application/settings+json"]))
     return if json_node.nil? || !json_node.content.includes?("date")
 
@@ -86,7 +88,7 @@ class HtmlDate
     try_parse_date(result.try &.[1])
   end
 
-  private def search_abbr(node)
+  private def search_abbr_nodes(node) : Time?
     nodes = node.xpath_nodes("//abbr")
 
     # search for abbr tags using class attributes
@@ -116,23 +118,39 @@ class HtmlDate
     end.sort!.last?
   end
 
-  private def try_parse_date(candidate : String?, patterns = PARSE_DATE_PATTERNS)
-    return if candidate.nil?
+  private def search_time_nodes(node) : Time?
+    nodes = node.xpath_nodes(".//time")
 
-    PARSE_DATE_PATTERNS.each do |pattern|
+    nodes.each_with_object([] of Time) do |abbr, obj|
+      can_use_datetime = abbr.attributes.find { |attr| attr.name == "pubdate" }
+      can_use_datetime ||= abbr.attributes.find do |attr|
+        attr.name == "class" &&
+          (attr.content == "entry-date" || attr.content == "entry-time")
+      end
+
+      if can_use_datetime && (datetime = abbr.attributes.find { |attr| attr.name == "datetime" })
+        date = try_parse_date(datetime.content)
+        obj << date if date
+      else
+        date = try_parse_date(abbr.text)
+        obj << date if date
+      end
+    end.sort!.last?
+  end
+
+  private def try_parse_date(candidate : String?, patterns = PARSE_DATE_PATTERNS) : Time?
+    return if candidate.nil? || candidate.size < 7
+
+    patterns.each do |pattern|
       date = Time.parse_utc(candidate, pattern) rescue nil
       return date if date && date >= @min_date && date <= @max_date
     end
   end
 
-  private def try_parse_unix(date : Int?)
+  private def try_parse_unix(date : Int?) : Time?
     return if date.nil?
 
     date = Time.unix(date) rescue nil
     return date if date && date >= @min_date && date <= @max_date
-  end
-
-  private def format_date(date)
-    date.to_s("%b %-d, %Y")
   end
 end
