@@ -14,7 +14,20 @@ $ ./bin/hde
 
 ## Deployment
 
-TODO:
+App is deployed to [Heroku](https://www.heroku.com/). The following steps can be performed to deploy it from scratch:
+
+``` sh
+$ heroku create hde-kagi --buildpack https://github.com/crystal-lang/heroku-buildpack-crystal.git
+$ heroku git:remote -a hde-kagi
+$ git push heroku master
+```
+
+Also note, that in order to be able to use a cache storage, a Redis resource must be added.
+Otherwise, cache must be disabled:
+
+``` sh
+$ heroku config:set CACHE_DISABLED=1
+```
 
 ## How it works
 
