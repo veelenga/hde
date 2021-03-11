@@ -46,9 +46,10 @@ Searching for a date in HTML is performed in the following steps:
 the publication or modification date of the page.
 2. Inspect the [JSON-LD](https://ru.wikipedia.org/wiki/JSON-LD) structure, which could contain
 the publication or modification page of the page.
-3. Inspect abbr attributes
-4. Inspect the time fields
-5. Try copyright date
+3. Inspect abbr tags. And try to find the most relevant date.
+4. Inspect the time tags. And try to find the most relevant date.
+5. Reduce HTML size and search for timestamps using regular expressions.
+6. Reduce HTML size and search for the copyright year in meta or using regular expressions.
 
 You can check the [specs](spec/html_date_spec.cr) for examples.
 
@@ -71,6 +72,16 @@ Meaning if the values are equal, content was not changed and we can used the cac
 If none of the above steps are true, the app starts extracting the date.
 
 Cache can be disabled by using `CACHE_DISABLED=1` environment variable.
+
+### HTTP Client
+
+A regular HTTP client is used to hit the URLs. It uses two small extensions:
+
+1. Following redirects
+2. Setting returned cookies
+
+However, this still doesn't help to perform a crawling in all the cases.
+May need some improvements.
 
 ## Contributors
 
