@@ -1,7 +1,7 @@
 require "redis"
 
 class Cache
-  DEFAULT_TTL = 7 * 24 * 60 * 60
+  TTL = 604_800 # 1 week: 7 * 24 * 60 * 60
 
   def initialize
     @cache_disabled = !!(ENV["CACHE_DISABLED"]?)
@@ -12,8 +12,8 @@ class Cache
     return if @cache_disabled
 
     @redis.multi do |multi|
-      multi.setex("digest-#{url}", DEFAULT_TTL, digest)
-      multi.setex("date-#{url}", DEFAULT_TTL, date)
+      multi.setex("digest-#{url}", TTL, digest)
+      multi.setex("date-#{url}", TTL, date)
     end
   end
 
