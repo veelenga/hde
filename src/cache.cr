@@ -5,7 +5,7 @@ class Cache
 
   def initialize
     @cache_disabled = !!(ENV["CACHE_DISABLED"]?)
-    @redis = Redis::PooledClient.new
+    @redis = Redis::PooledClient.new(url: ENV["REDIS_URL"]? || "redis://localhost:6379")
   end
 
   def save(url, digest, date)

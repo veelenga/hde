@@ -12,6 +12,15 @@ $ ./bin/hde
 [development] Kemal is ready to lead at http://0.0.0.0:3000
 ```
 
+Also note, that in order to be able to use a cache storage, a Redis must be available locally.
+Otherwise, cache must be disabled:
+
+``` sh
+$ CACHE_DISABLED=1 ./bin/hde
+```
+
+For best performance, the app must be compiled with `--release` and `--Dpreview_mt` flags.
+
 ## Deployment
 
 App is deployed to [Heroku](https://www.heroku.com/). The following steps can be performed to deploy it from scratch:
