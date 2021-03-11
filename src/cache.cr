@@ -8,12 +8,12 @@ class Cache
     @redis = Redis::PooledClient.new(url: ENV["REDIS_URL"]? || "redis://localhost:6379")
   end
 
-  def save(url, digest, date)
+  def save(url, digest : String, date : String)
     return if @cache_disabled
 
     @redis.multi do |multi|
-      multi.setex("digest-#{url}", TTL, digest)
-      multi.setex("date-#{url}", TTL, date)
+      multi.set("digest-#{url}", digest, ex: TTL)
+      multi.set("date-#{url}", date, ex: TTL)
     end
   end
 
@@ -27,5 +27,11 @@ class Cache
     return if @cache_disabled
 
     @redis.get("date-#{url}")
+  end
+
+  def close
+    return if @cache_disabled
+
+    @redis.close
   end
 end

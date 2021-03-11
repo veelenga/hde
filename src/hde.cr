@@ -21,5 +21,5 @@ ws "/ws" do |socket|
   end
 end
 
-Log.setup(:debug)
+Log.setup_from_env
 Kemal.run port: (ENV["PORT"]? || "3000").to_i

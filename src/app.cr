@@ -47,6 +47,8 @@ class App
     end
 
     channels.each &.receive
+  ensure
+    @cache.close
   end
 
   private def process_url(url)
