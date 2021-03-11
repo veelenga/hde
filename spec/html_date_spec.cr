@@ -1,6 +1,11 @@
 require "./spec_helper"
 require "../src/html_date"
 
+def it_extracts_file(date : String, file)
+  html = File.read(file)
+  it_extracts(date, html)
+end
+
 def it_extracts(date : String, html : String)
   it { HtmlDate.new.extract_from_html(html).should eq(date) }
 end
@@ -12,17 +17,8 @@ end
 describe HtmlDate do
   describe "#extract_from_html" do
     describe "meta nodes" do
-      it "extracts date from meta in header" do
-        html = File.read("spec/assets/analyticsvidhya.com.html")
-        date = HtmlDate.new.extract_from_html(html)
-        date.should eq("Jun 10, 2019")
-      end
-
-      it "extracts date from meta in body" do
-        html = File.read("spec/assets/edition.cnn.com.html")
-        date = HtmlDate.new.extract_from_html(html)
-        date.should eq("Mar 12, 2020")
-      end
+      it_extracts_file "Jun 10, 2019", "spec/assets/analyticsvidhya.com.html"
+      it_extracts_file "Mar 12, 2020", "spec/assets/edition.cnn.com.html"
 
       it_extracts "Sep 1, 2017", %q(<html><head><meta property="dc:created" content="2017-09-01"/></head><body></body></html>)
       it_extracts "Sep 1, 2017", %q(<html><head><meta property="og:published_time" content="2017-09-01"/></head><body></body></html>)
@@ -38,11 +34,7 @@ describe HtmlDate do
     end
 
     describe "ldjson" do
-      it "extracts date from ldjson" do
-        html = File.read("spec/assets/gardeningknowhow.com.html")
-        date = HtmlDate.new.extract_from_html(html)
-        date.should eq("Dec 7, 2020")
-      end
+      it_extracts_file "Dec 7, 2020", "spec/assets/gardeningknowhow.com.html"
     end
 
     describe "abbr nodes" do
@@ -64,6 +56,10 @@ describe HtmlDate do
 
       it_doesnt_extract %q(<html><body><time datetime="2011-09-28" class="test"></time></body></html>)
       it_doesnt_extract %q(<html><body><time datetime="2011-09-28"></time></body></html>)
+    end
+
+    describe "timestamp search" do
+      it_extracts_file "Feb 2, 2020", "spec/assets/github.com.html"
     end
 
     describe "copyright" do

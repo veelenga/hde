@@ -1,4 +1,5 @@
 require "xml"
+require "./sanitize/blacklist"
 
 class HtmlDate
   LD_JSON_PATTERN_PUBLISHED = /datePublished": ?"([0-9]{4}-[0-9]{2}-[0-9]{2})/
@@ -49,6 +50,28 @@ class HtmlDate
     "%d.%m.%y",   # 03.01.2021
     "%-d.%-m.%y", # 3.1.2021
   ]
+  TIMESTAMP_SEARCH_PATTERN       = /([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\.[0-9]{2}\.[0-9]{4}).[0-9]{2}:[0-9]{2}:[0-9]{2}/
+  TIMESTAMP_SEARCH_REJECTED_TAGS = %w(
+    audio
+    abbr
+    canvas
+    embed
+    figcaption
+    footer
+    form
+    frame
+    iframe
+    link
+    meta
+    math
+    svg
+    picture
+    noscript
+    object
+    picture
+    script
+    video
+  )
 
   def initialize
     @min_date = Time.unix(0)
@@ -62,6 +85,7 @@ class HtmlDate
     date ||= search_ldjson(node)
     date ||= search_abbr_nodes(node)
     date ||= search_time_nodes(node)
+    date ||= search_timestamps(html)
 
     date.try &.to_s("%b %-d, %Y")
   end
@@ -136,6 +160,15 @@ class HtmlDate
         obj << date if date
       end
     end.sort!.last?
+  end
+
+  private def search_timestamps(htmlstring)
+    html = Sanitize::Blacklist
+      .new(rejectable_tags: TIMESTAMP_SEARCH_REJECTED_TAGS)
+      .process(htmlstring)
+
+    result = TIMESTAMP_SEARCH_PATTERN.match html
+    try_parse_date(result.try &.[1])
   end
 
   private def try_parse_date(candidate : String?, patterns = PARSE_DATE_PATTERNS) : Time?

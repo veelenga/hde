@@ -24,3 +24,7 @@ shards:
     git: https://github.com/stefanwille/crystal-redis.git
     version: 2.6.0
 
+  sanitize:
+    git: https://github.com/straight-shoota/sanitize.git
+    version: 0.1.0+git.commit.38c73669b274b77020025562549c6abf026001c6
+
