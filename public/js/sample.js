@@ -12,7 +12,12 @@ function initializeSampleData() {
     "https://www.youtube.com/watch?v=mii6NydPiqI/",
     "https://gardenerspath.com/how-to/beginners/first-vegetable-garden/",
     "https://lifehacker.com/the-seven-easiest-vegetables-to-grow-for-beginner-garde-1562176780",
-    "https://www.gardeningknowhow.com/edible/vegetables/vgen/vegetable-gardening-for-beginners.htm"
+    "https://www.gardeningknowhow.com/edible/vegetables/vgen/vegetable-gardening-for-beginners.htm",
+    "https://veelenga.github.io/tracking-paper-trail-versions/",
+    "https://veelenga.github.io/joining-polymorphic-associations/",
+    "https://veelenga.github.io/splitting-rails-migration-into-smaller-pieces/",
+    "https://crystal-ameba.github.io/2020/06/22/release-v0.13.0/",
+    "https://crystal-ameba.github.io/2019/11/28/release-v0.11.0/"
   ];
 
   let text = sampleUrls.join('\n\n');
