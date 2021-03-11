@@ -1,11 +1,11 @@
-name: htmldate_extractor
+name: hde
 version: 0.1.0
 
 authors:
   - Vitalii Elenhaupt <velenhaupt@gmail.com>
 
 targets:
-  htmldate_extractor:
+  hde:
     main: src/web.cr
 
 dependencies:

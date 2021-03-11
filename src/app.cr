@@ -40,7 +40,7 @@ class App
       rescue e
         Log.error { e.inspect_with_backtrace }
         block.call "process", "#{url} | NA | NA"
-        block.call "error", e.message
+        block.call "error", "#{url} | #{e.message}"
       ensure
         channel.send(nil)
       end

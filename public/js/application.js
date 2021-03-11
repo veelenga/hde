@@ -8,7 +8,8 @@ function startProcessingClicked() {
 }
 
 function initServerCommunication(data) {
-  let socket = new WebSocket("ws://localhost:3000/ws");
+  const url = window.location.origin.replace("http", "ws");
+  let socket = new WebSocket(`${url}/ws`);
 
   socket.onopen = () => socket.send(data);
   socket.onmessage = (event) => processServerEvent(socket, event);

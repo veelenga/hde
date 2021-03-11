@@ -31,6 +31,8 @@ module HtmlDate
     cxenseparse:recs:publishtime
     article.created
     article_date_original
+    datePublished
+    uploadDate
   )
 
   def extract_from_html(html)
@@ -60,7 +62,7 @@ module HtmlDate
 
     result = LD_JSON_PATTERN_MODIFIED.match(json_node.content) ||
              LD_JSON_PATTERN_PUBLISHED.match(json_node.content)
-    pp result
+
     result.try &.[1]
   end
 

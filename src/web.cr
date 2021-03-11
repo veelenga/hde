@@ -22,4 +22,4 @@ ws "/ws" do |socket|
 end
 
 Log.setup(:debug)
-Kemal.run
+Kemal.run port: (ENV["PORT"]? || "3000").to_i

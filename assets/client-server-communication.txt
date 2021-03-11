@@ -1,0 +1,19 @@
+title HDE Client/Server Communication
+
+entryspacing 0.8
+Client->Server: Opens WebSocket connection and sends input URLs
+
+Client<-Server:Sends **START** command, indicating the process begins
+
+Client<-Server:Sends **PROCESS** command, indicating a specific URL is processed. Includes extracted date and execution time
+
+note over Client,Server: ... repeats as many times as a number of URLS are
+
+
+Client<--Server: Can send **ERROR** command, indicating the URL cannot be processed
+
+Client <- Server: Sends **FINISH** command, indicating the process is done. Includes the total execution time
+
+Client <- Server: Closes WebSocket connection
+
+
